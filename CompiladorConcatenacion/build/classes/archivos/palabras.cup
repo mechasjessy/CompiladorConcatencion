@@ -1,0 +1,73 @@
+   
+/*1. Seccion de declaraciones preliminares*/
+package analizadores;
+import java_cup.runtime.*;
+import java.io.FileReader;
+
+/*2. Codigo de usuario*/
+parser code {:
+    
+    /* Reporte de error encontrado. */
+    public void report_error(String message, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {                
+                m.append(" in line "+(s.left+1));
+                if (s.right >= 0)
+                    m.append(", column "+(s.right+1));
+            }
+        }
+	    if("#5".equals(info.toString())){
+                message=("Revice PARENTESIS del INICIO");
+            }
+            if("#0".equals(info.toString())){
+                message=("Revice PARENTESIS del FINAL");
+            }
+            if("#4".equals(info.toString())){
+                message=("No hay como concatenar hay una sola palabra");
+            }
+            
+        m.append(" : "+message);
+        System.err.println(m);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+:};
+      
+/*3. Declaracion de simbolos terminales y no terminales*/
+   
+terminal           MAS, ABPARENT, CEPARENT;
+terminal String		PALABRA;
+   
+non terminal Object     expr_list, expr_part;
+non terminal String palabra, expr;
+
+/*4. Expresiones gramaticales*/
+
+expr_list ::= expr_list expr_part
+                  |
+                  expr_part
+                  ;
+
+expr_part ::= ABPARENT expr:e CEPARENT
+                  {:
+				  System.out.println("");
+                  :} 
+                 ;
+   
+expr      ::=  palabra:e MAS palabra:v
+                  {:
+				  System.out.print("Concatenado: "+e+v);
+                  :}
+                  ;
+
+palabra       ::=  PALABRA:e
+				  {:
+                    RESULT = e;
+                  :}
+                  ; 
